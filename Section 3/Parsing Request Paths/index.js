@@ -14,6 +14,8 @@ const server = http.createServer((req, res) => {
   // Get the URL and parse it
   const parsedUrl = url.parse(req.url, true);
 
+  console.log(parsedUrl);
+
   // Get the path
   const path = parsedUrl.pathname;
 
