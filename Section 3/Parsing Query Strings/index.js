@@ -3,34 +3,22 @@
  *
  */
 
-// Dependencies
-var http = require('http');
-var url = require('url');
+const http = require('http');
+const url = require('url');
 
- // Configure the server to respond to all requests with a string
-var server = http.createServer(function(req,res){
+const server = http.createServer((req,res) => {
+  const parsedUrl = url.parse(req.url, true);
+  const path = parsedUrl.pathname;
+  const trimmedPath = path.replace(/^\/+|\/+$/g, '');
+  const queryStringObject = parsedUrl.query;
 
-  // Parse the url
-  var parsedUrl = url.parse(req.url, true);
+  const method = req.method.toLowerCase();
 
-  // Get the path
-  var path = parsedUrl.pathname;
-  var trimmedPath = path.replace(/^\/+|\/+$/g, '');
-
-  // Get the query string as an object
-  var queryStringObject = parsedUrl.query;
-
-  // Get the HTTP method
-  var method = req.method.toLowerCase();
-
-  // Send the response
   res.end('Hello World!\n');
 
-  // Log the request/response
   console.log('Request received on path: '+trimmedPath+' with method: '+method+' and this query string: ',queryStringObject);
 });
 
-// Start the server
-server.listen(3000,function(){
+server.listen(3000,() => {
   console.log('The server is up and running now');
 });
