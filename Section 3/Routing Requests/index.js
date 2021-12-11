@@ -80,7 +80,7 @@ var handlers = {};
 
 // Sample handler
 handlers.sample = function(data,callback){
-    callback(406,{'name':'sample handler'});
+  callback(406,{'name':'sample handler'});
 };
 
 // Not found handler
