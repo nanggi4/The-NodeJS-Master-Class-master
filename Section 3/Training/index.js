@@ -4,6 +4,8 @@
 
 // Dependencies
 const http = require('http');
+const { stringify } = require('querystring');
+const StringDecoder = require('string_decoder').StringDecoder;
 const url = require('url');
 const PORT = 3000;
 
@@ -24,16 +26,27 @@ const server = http.createServer((req, res) => {
 
   // Get the headers as an object
   const headers = req.headers;
-  
-  // Send the reponse
-  res.end('Hello World\n');
 
-  // Log the request path 
-  console.log('Request received on path: ' + trimmedPath 
-  + ' with method: ' + method + ' and with these query string parameter ' 
-  + queryStringObject);
+  // Get the payload, if any
+  const decoder = new stringify('uft-8');
+  let buffer = '';
+  req.on('data', (data) => {
+    buffer += decoder.write(data);
+  });
+
+  req.on('end', () => {
+    buffer += decoder.end();
+
+    // Send the reponse
+    res.end('Hello World\n');
+
+    // Log the request path 
+    console.log('Request received on path: ' + trimmedPath 
+    + ' with method: ' + method + ' and with these query string parameter ' 
+    + queryStringObject); 
+  });
 });
 
 server.listen(PORT, () => {
   console.log(`The server is listening on port ${PORT} now`);
-})
+});
