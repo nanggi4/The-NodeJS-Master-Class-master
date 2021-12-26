@@ -10,6 +10,12 @@ const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
 const url = require('url');
 const fs = require('fs');
+const _data = require('./lib/data');
+
+// @TODO delete this
+_data.read('test', 'newFile', {'foo' : 'bar'}, (err) => {
+  console.log('this was the error', err);
+});
 
 const httpServer = http.createServer((req, res) => {
   unifiedServer(req, res);
@@ -89,6 +95,10 @@ const unifiedServer = (req, res) => {
 };
 
 let handlers = {};
+
+handlers.ping = (data, callback) => {
+  callback(200);
+};
 
 handlers.sample = (data, callback) => {
   // Callback a http status code and a payload object
