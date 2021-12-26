@@ -6,8 +6,8 @@
 const http = require('http');
 const { stringify } = require('querystring');
 const StringDecoder = require('string_decoder').StringDecoder;
+const config = require('./config');
 const url = require('url');
-const PORT = 3000;
 
 const server = http.createServer((req, res) => {
 
@@ -37,16 +37,50 @@ const server = http.createServer((req, res) => {
   req.on('end', () => {
     buffer += decoder.end();
 
-    // Send the reponse
-    res.end('Hello World\n');
+    const chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
 
-    // Log the request path 
-    console.log('Request received on path: ' + trimmedPath 
-    + ' with method: ' + method + ' and with these query string parameter ' 
-    + queryStringObject); 
+    const data = {
+      trimmedPath,
+      queryStringObject,
+      method,
+      headers,
+      'payload': buffer 
+    };
+
+    chosenHandler(data, (statusCode, payload) => {
+      statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
+      payload = typeof(payload) === 'object' ? payload : {};
+
+      const payloadString = JSON.stringify(payload);
+
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(statusCode);
+      res.end(payloadString);
+
+      // Log the request path 
+      console.log('Request received on path: ' + trimmedPath 
+      + ' with method: ' + method + ' and with these query string parameter ' 
+      + queryStringObject); 
+    });
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`The server is listening on port ${PORT} now`);
+server.listen(config.port, () => {
+  console.log(`The server is listening on port ${config.port} now`);
 });
+
+let handlers = {};
+
+handlers.sample = (data, callback) => {
+  // Callback a http status code and a payload object
+  callback(406, {'name': 'sample handler'});
+};
+
+handlers.notFound = (data, callback) => {
+  callback(404);
+};
+
+// Define a request router
+const router = {
+  'sample': handlers.sample
+};
