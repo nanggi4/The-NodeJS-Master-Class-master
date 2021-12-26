@@ -4,12 +4,35 @@
 
 // Dependencies
 const http = require('http');
+const https = require('https');
 const { stringify } = require('querystring');
 const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
 const url = require('url');
+const fs = require('fs');
 
-const server = http.createServer((req, res) => {
+const httpServer = http.createServer((req, res) => {
+  unifiedServer(req, res);
+});
+
+httpServer.listen(config.httpPort, () => {
+  console.log(`The httpServer is listening on port ${config.httpPort}`);
+});
+
+const httpsServerOptions = {
+  'key': fs.readFileSync('./https/key.pem'),
+  'cert': fs.readFileSync('./https/cert.pem')
+};
+
+const httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+  unifiedServer(req, res);
+});
+
+httpsServer.listen(config.httpPort, () => {
+  console.log(`The httpsServer is listening on port ${config.httpsPort}`);
+});
+
+const unifiedServer = (req, res) => {
 
   // Get the URL and parse it
   let parsedUrl = url.parse(req.url, true);
@@ -63,11 +86,7 @@ const server = http.createServer((req, res) => {
       + queryStringObject); 
     });
   });
-});
-
-server.listen(config.port, () => {
-  console.log(`The server is listening on port ${config.port} now`);
-});
+};
 
 let handlers = {};
 
